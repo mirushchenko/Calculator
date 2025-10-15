@@ -3,174 +3,395 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Калькулятор</title>
+    <title>Neo Calculator</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
         }
 
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
+            min-height: 100vh;
             padding: 20px;
+            /* Запрещаем увеличение на мобильных устройствах */
+            touch-action: manipulation;
+            -webkit-text-size-adjust: none;
+            text-size-adjust: none;
         }
 
         .calculator {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-            max-width: 400px;
+            background: rgba(17, 24, 39, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 32px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 
+                0 25px 50px -12px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
             width: 100%;
-        }
-
-        h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 30px;
-            font-size: 28px;
+            max-width: 380px;
+            overflow: hidden;
+            /* Предотвращаем изменение размера */
+            transform: translateZ(0);
         }
 
         .display {
-            background: #f8f9fa;
-            border: 2px solid #e9ecef;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
+            padding: 80px 30px 30px 30px;
             text-align: right;
-            font-size: 24px;
-            min-height: 80px;
+            color: white;
+            min-height: 220px;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-end;
+            background: rgba(0, 0, 0, 0.3);
+            /* Запрещаем выделение текста и увеличение */
+            user-select: none;
+            -webkit-user-select: none;
         }
 
         .previous-operation {
-            font-size: 16px;
-            color: #6c757d;
-            min-height: 24px;
+            font-size: 20px;
+            color: rgba(255, 255, 255, 0.7);
+            height: 28px;
+            margin-bottom: 12px;
+            font-weight: 400;
+            /* Предотвращаем изменение размера шрифта */
+            text-size-adjust: none;
         }
 
         .current-operation {
-            font-size: 28px;
-            color: #333;
-            font-weight: bold;
+            font-size: 60px;
+            color: white;
+            font-weight: 300;
             word-wrap: break-word;
+            line-height: 1.1;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            /* Фиксируем размер шрифта */
+            text-size-adjust: none;
+            /* Запрещаем выделение */
+            user-select: none;
+            -webkit-user-select: none;
         }
 
         .buttons {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
+            gap: 16px;
+            padding: 24px;
+            background: rgba(255, 255, 255, 0.03);
         }
 
         button {
-            padding: 18px;
-            font-size: 18px;
             border: none;
-            border-radius: 10px;
+            border-radius: 20px;
+            width: 70px;
+            height: 70px;
+            font-size: 24px;
+            font-weight: 500;
             cursor: pointer;
-            transition: all 0.2s ease;
-            background: #f8f9fa;
-            color: #333;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            outline: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+            /* Запрещаем увеличение на мобильных */
+            touch-action: manipulation;
+            -webkit-touch-callout: none;
         }
 
-        button:hover {
-            background: #e9ecef;
-            transform: translateY(-2px);
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 100%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            border-radius: 20px;
+        }
+
+        button:hover::before {
+            opacity: 1;
         }
 
         button:active {
-            transform: translateY(0);
+            transform: scale(0.92);
+        }
+
+        .number {
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 
+                0 4px 12px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        .number:hover {
+            background: rgba(255, 255, 255, 0.12);
+            box-shadow: 
+                0 6px 20px rgba(0, 0, 0, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
         }
 
         .operator {
-            background: #007bff;
+            background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
             color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 
+                0 4px 12px rgba(99, 102, 241, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
         }
 
         .operator:hover {
-            background: #0056b3;
+            background: linear-gradient(135deg, #5B5FEF 0%, #7C3AED 100%);
+            box-shadow: 
+                0 6px 20px rgba(99, 102, 241, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
         }
 
         .equals {
-            background: #28a745;
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
             color: white;
-            grid-column: span 2;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 
+                0 4px 12px rgba(16, 185, 129, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
         }
 
         .equals:hover {
-            background: #1e7e34;
+            background: linear-gradient(135deg, #0DA271 0%, #047857 100%);
+            box-shadow: 
+                0 6px 20px rgba(16, 185, 129, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
         }
 
-        .clear {
-            background: #dc3545;
-            color: white;
+        .function {
+            background: rgba(255, 255, 255, 0.06);
+            color: #9CA3AF;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            box-shadow: 
+                0 4px 12px rgba(0, 0, 0, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.03);
         }
 
-        .clear:hover {
-            background: #c82333;
+        .function:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #E5E7EB;
         }
 
         .zero {
             grid-column: span 2;
+            width: 156px;
+            border-radius: 20px;
+            justify-content: flex-start;
+            padding-left: 28px;
         }
 
-        @media (max-width: 480px) {
+        .operator.active {
+            background: white;
+            color: #6366F1;
+            box-shadow: 
+                0 4px 12px rgba(255, 255, 255, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8);
+        }
+
+        /* Анимация для дисплея */
+        .display span {
+            display: inline-block;
+            animation: fadeInUp 0.3s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Адаптивность */
+        @media (max-width: 420px) {
+            body {
+                padding: 15px;
+            }
+            
             .calculator {
-                padding: 20px;
+                max-width: 100%;
+                border-radius: 28px;
             }
             
             button {
-                padding: 15px;
-                font-size: 16px;
+                width: 64px;
+                height: 64px;
+                font-size: 22px;
+                border-radius: 18px;
+            }
+            
+            .zero {
+                width: 144px;
+            }
+            
+            .current-operation {
+                font-size: 52px;
+            }
+            
+            .buttons {
+                gap: 14px;
+                padding: 20px;
             }
             
             .display {
-                padding: 15px;
+                padding: 70px 25px 25px 25px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            body {
+                padding: 10px;
+            }
+            
+            button {
+                width: 58px;
+                height: 58px;
                 font-size: 20px;
+                border-radius: 16px;
+            }
+            
+            .zero {
+                width: 132px;
+            }
+            
+            .current-operation {
+                font-size: 46px;
+            }
+            
+            .buttons {
+                gap: 12px;
+                padding: 18px;
+            }
+            
+            .display {
+                padding: 60px 20px 20px 20px;
+            }
+        }
+
+        @media (max-width: 320px) {
+            button {
+                width: 52px;
+                height: 52px;
+                font-size: 18px;
+                border-radius: 14px;
+            }
+            
+            .zero {
+                width: 116px;
+            }
+            
+            .current-operation {
+                font-size: 40px;
+            }
+            
+            .buttons {
+                gap: 10px;
+                padding: 16px;
+            }
+        }
+
+        /* Эффект частиц при нажатии */
+        .particles {
+            position: absolute;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            animation: particleFloat 1s ease-out forwards;
+        }
+
+        @keyframes particleFloat {
+            0% {
+                transform: translate(0, 0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--tx), var(--ty)) scale(0);
+                opacity: 0;
+            }
+        }
+
+        /* Предотвращение увеличения на iOS */
+        @supports (-webkit-touch-callout: none) {
+            body {
+                -webkit-user-select: none;
+            }
+            
+            input, textarea {
+                -webkit-user-select: text;
             }
         }
     </style>
 </head>
 <body>
     <div class="calculator">
-        <h1>Калькулятор</h1>
-        
         <div class="display">
             <div class="previous-operation" id="previousOperation"></div>
             <div class="current-operation" id="currentOperation">0</div>
         </div>
         
         <div class="buttons">
-            <button class="clear" onclick="clearCalculator()">C</button>
-            <button class="clear" onclick="deleteLast()">⌫</button>
-            <button class="operator" onclick="appendOperator('/')">/</button>
-            <button class="operator" onclick="appendOperator('*')">×</button>
+            <!-- Первый ряд -->
+            <button class="function" onclick="handleButtonClick(event, clearCalculator)">C</button>
+            <button class="function" onclick="handleButtonClick(event, toggleSign)">±</button>
+            <button class="function" onclick="handleButtonClick(event, percentage)">%</button>
+            <button class="operator" onclick="handleButtonClick(event, () => appendOperator('/'))">÷</button>
             
-            <button onclick="appendNumber('7')">7</button>
-            <button onclick="appendNumber('8')">8</button>
-            <button onclick="appendNumber('9')">9</button>
-            <button class="operator" onclick="appendOperator('-')">-</button>
+            <!-- Второй ряд -->
+            <button class="number" onclick="handleButtonClick(event, () => appendNumber('7'))">7</button>
+            <button class="number" onclick="handleButtonClick(event, () => appendNumber('8'))">8</button>
+            <button class="number" onclick="handleButtonClick(event, () => appendNumber('9'))">9</button>
+            <button class="operator" onclick="handleButtonClick(event, () => appendOperator('*'))">×</button>
             
-            <button onclick="appendNumber('4')">4</button>
-            <button onclick="appendNumber('5')">5</button>
-            <button onclick="appendNumber('6')">6</button>
-            <button class="operator" onclick="appendOperator('+')">+</button>
+            <!-- Третий ряд -->
+            <button class="number" onclick="handleButtonClick(event, () => appendNumber('4'))">4</button>
+            <button class="number" onclick="handleButtonClick(event, () => appendNumber('5'))">5</button>
+            <button class="number" onclick="handleButtonClick(event, () => appendNumber('6'))">6</button>
+            <button class="operator" onclick="handleButtonClick(event, () => appendOperator('-'))">−</button>
             
-            <button onclick="appendNumber('1')">1</button>
-            <button onclick="appendNumber('2')">2</button>
-            <button onclick="appendNumber('3')">3</button>
-            <button class="equals" onclick="calculate()" rowspan="2">=</button>
+            <!-- Четвертый ряд -->
+            <button class="number" onclick="handleButtonClick(event, () => appendNumber('1'))">1</button>
+            <button class="number" onclick="handleButtonClick(event, () => appendNumber('2'))">2</button>
+            <button class="number" onclick="handleButtonClick(event, () => appendNumber('3'))">3</button>
+            <button class="operator" onclick="handleButtonClick(event, () => appendOperator('+'))">+</button>
             
-            <button class="zero" onclick="appendNumber('0')">0</button>
-            <button onclick="appendDecimal()">.</button>
+            <!-- Пятый ряд -->
+            <button class="number zero" onclick="handleButtonClick(event, () => appendNumber('0'))">0</button>
+            <button class="number" onclick="handleButtonClick(event, appendDecimal)">.</button>
+            <button class="equals" onclick="handleButtonClick(event, calculate)">=</button>
         </div>
     </div>
 
@@ -183,9 +404,22 @@
         const currentOperationElement = document.getElementById('currentOperation');
         const previousOperationElement = document.getElementById('previousOperation');
 
+        // Обработчик клика для всех кнопок
+        function handleButtonClick(event, callback) {
+            event.preventDefault();
+            event.stopPropagation();
+            createParticles(event);
+            callback();
+        }
+
         function updateDisplay() {
             currentOperationElement.textContent = currentInput;
             previousOperationElement.textContent = previousInput;
+            
+            // Подсветка активного оператора
+            document.querySelectorAll('.operator').forEach(btn => {
+                btn.classList.remove('active');
+            });
         }
 
         function appendNumber(number) {
@@ -206,8 +440,23 @@
             if (operator !== null) calculate();
             
             operator = op;
-            previousInput = `${currentInput} ${op}`;
+            previousInput = currentInput;
             shouldResetScreen = true;
+            
+            // Подсветка выбранного оператора
+            const operatorButtons = {
+                '+': '+',
+                '-': '−',
+                '*': '×',
+                '/': '÷'
+            };
+            
+            document.querySelectorAll('.operator').forEach(btn => {
+                if (btn.textContent === operatorButtons[op]) {
+                    btn.classList.add('active');
+                }
+            });
+            
             updateDisplay();
         }
 
@@ -242,8 +491,10 @@
                     break;
                 case '/':
                     if (current === 0) {
-                        alert('Ошибка: деление на ноль!');
-                        clearCalculator();
+                        currentInput = 'Ошибка';
+                        operator = null;
+                        previousInput = '';
+                        updateDisplay();
                         return;
                     }
                     result = prev / current;
@@ -252,11 +503,15 @@
                     return;
             }
 
-            currentInput = result.toString();
+            currentInput = formatResult(result);
             operator = null;
             previousInput = '';
             shouldResetScreen = true;
             updateDisplay();
+        }
+
+        function formatResult(result) {
+            return parseFloat(result.toFixed(10)).toString();
         }
 
         function clearCalculator() {
@@ -267,16 +522,52 @@
             updateDisplay();
         }
 
-        function deleteLast() {
-            if (currentInput.length === 1) {
-                currentInput = '0';
-            } else {
-                currentInput = currentInput.slice(0, -1);
+        function percentage() {
+            const num = parseFloat(currentInput);
+            currentInput = (num / 100).toString();
+            updateDisplay();
+        }
+
+        function toggleSign() {
+            if (currentInput !== '0') {
+                currentInput = (-parseFloat(currentInput)).toString();
             }
             updateDisplay();
         }
 
-        // Добавляем поддержку клавиатуры
+        // Эффект частиц
+        function createParticles(event) {
+            const button = event.currentTarget;
+            const rect = button.getBoundingClientRect();
+            const x = rect.left + rect.width / 2;
+            const y = rect.top + rect.height / 2;
+            
+            const particles = document.createElement('div');
+            particles.className = 'particles';
+            document.body.appendChild(particles);
+            
+            for (let i = 0; i < 6; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                const angle = Math.random() * Math.PI * 2;
+                const distance = 15 + Math.random() * 20;
+                const tx = Math.cos(angle) * distance;
+                const ty = Math.sin(angle) * distance;
+                
+                particle.style.setProperty('--tx', `${tx}px`);
+                particle.style.setProperty('--ty', `${ty}px`);
+                particle.style.left = `${x}px`;
+                particle.style.top = `${y}px`;
+                
+                particles.appendChild(particle);
+            }
+            
+            setTimeout(() => {
+                particles.remove();
+            }, 1000);
+        }
+
+        // Поддержка клавиатуры
         document.addEventListener('keydown', function(event) {
             if (event.key >= '0' && event.key <= '9') {
                 appendNumber(event.key);
@@ -290,8 +581,18 @@
             } else if (event.key === 'Escape') {
                 clearCalculator();
             } else if (event.key === 'Backspace') {
-                deleteLast();
+                if (currentInput.length === 1 || (currentInput.length === 2 && currentInput.startsWith('-'))) {
+                    currentInput = '0';
+                } else {
+                    currentInput = currentInput.slice(0, -1);
+                }
+                updateDisplay();
             }
+        });
+
+        // Запрет контекстного меню
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
         });
 
         // Инициализация дисплея
