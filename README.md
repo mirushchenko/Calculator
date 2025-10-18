@@ -1,10 +1,10 @@
-# 🧮 Neo Calculator
+# Neo Calculator
 
 A modern, responsive calculator built with pure HTML, CSS and JavaScript.
 
 [**Live Demo**](https://mirushchenko.github.io/Calculator/)
 
-## ✨ Features
+## Features
 
 - **Basic Operations**: +, -, ×, ÷
 - **Responsive Design**: Works on desktop and mobile
