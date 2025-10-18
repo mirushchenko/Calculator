@@ -2,6 +2,8 @@
 
 A modern, responsive calculator built with pure HTML, CSS and JavaScript.
 
+<img width="564" height="781" alt="Calculator" src="https://github.com/user-attachments/assets/6f104fff-4f95-40f0-a2aa-e8651183f2ec" />
+
 [**Live Demo**](https://mirushchenko.github.io/Calculator/)
 
 ## Features
